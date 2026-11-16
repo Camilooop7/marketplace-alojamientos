@@ -238,9 +238,19 @@ class PerfilView(APIView):
 
 class DesactivarCuentaView(APIView):
     def patch(self, request):
+        from aplicaciones.publicacion.models import Publicacion
+        from aplicaciones.reserva.models import Reserva
+
         usuario = request.user
+        pendientes = list(Reserva.futuras_de(usuario).values_list('codigo', flat=True))
+        if pendientes:
+            return Response({'mensaje': 'No puedes desactivar tu cuenta porque tienes reservas pendientes: '
+                                        '{0}.'.format(', '.join(pendientes)), 'reservas': pendientes},
+                            status=status.HTTP_409_CONFLICT)
         usuario.estado = Usuario.Estado.INACTIVO
         usuario.save(update_fields=['estado'])
+        usuario.publicaciones.filter(estado=Publicacion.Estado.ACTIVA).update(
+            estado=Publicacion.Estado.PAUSADA)
         Auditoria.registrar(
             usuario, Auditoria.Accion.CAMBIO_ESTADO, recurso_usuario(usuario), 'Desactivó su cuenta')
         logout(request)

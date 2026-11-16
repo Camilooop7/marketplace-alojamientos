@@ -11,4 +11,6 @@ urlpatterns = [
     path('', estado, name='estado'),
     path('admin/', admin.site.urls),
     path('api/', include('aplicaciones.gestion_usuario.urls')),
+    path('api/', include('aplicaciones.publicacion.urls')),
+    path('api/', include('aplicaciones.reserva.urls')),
 ]

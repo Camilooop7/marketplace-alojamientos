@@ -1,8 +1,20 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import TarjetaAlojamiento from '../components/TarjetaAlojamiento'
+import { listarPublicaciones } from '../api/publicaciones'
 import { useAuth } from '../context/contextoAuth'
 
 export default function Inicio() {
   const { usuario } = useAuth()
+  const [lista, setLista] = useState([])
+  const [cargando, setCargando] = useState(true)
+
+  useEffect(() => {
+    listarPublicaciones({})
+      .then(({ data }) => setLista(data))
+      .catch(() => setLista([]))
+      .finally(() => setCargando(false))
+  }, [])
 
   return (
     <>
@@ -13,6 +25,7 @@ export default function Inicio() {
             Marketplace de alojamientos. Crea tu cuenta como huésped o anfitrión y empieza.
           </p>
           <div className="acciones">
+            <Link className="boton boton-fantasma" to="/alojamientos">Ver alojamientos</Link>
             {usuario ? (
               <Link className="boton boton-primario" to="/perfil">Ir a mi perfil</Link>
             ) : (
@@ -22,6 +35,22 @@ export default function Inicio() {
               </>
             )}
           </div>
+        </div>
+      </section>
+
+      <section className="seccion">
+        <div className="contenedor">
+          <p className="etiqueta-seccion">Alojamientos</p>
+          <h2>Elige dónde quedarte.</h2>
+          {cargando ? (
+            <p className="cargando">Cargando alojamientos...</p>
+          ) : lista.length === 0 ? (
+            <p className="vacio">Todavía no hay alojamientos publicados.</p>
+          ) : (
+            <div className="rejilla">
+              {lista.map((item) => <TarjetaAlojamiento key={item.id} item={item} />)}
+            </div>
+          )}
         </div>
       </section>
 

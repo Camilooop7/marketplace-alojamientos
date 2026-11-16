@@ -43,11 +43,15 @@ export default function ProveedorAuth({children}) {
         }
     }
 
-    const esAdministrador = Boolean(
-        usuario && usuario.rol && usuario.rol.split(', ').includes('Administrador'),
-    )
+    const roles = usuario && usuario.rol ? usuario.rol.split(', ') : []
+    const esAdministrador = roles.includes('Administrador')
+    const esHuesped = roles.includes('Huesped')
+    const esAnfitrion = roles.includes('Anfitrion')
 
-    const valor = {usuario, cargando, esAdministrador, ingresar, salir, establecerUsuario: setUsuario}
+    const valor = {
+        usuario, cargando, esAdministrador, esHuesped, esAnfitrion, ingresar, salir,
+        establecerUsuario: setUsuario,
+    }
 
     return <ContextoAuth.Provider value={valor}>{children}</ContextoAuth.Provider>
 }
