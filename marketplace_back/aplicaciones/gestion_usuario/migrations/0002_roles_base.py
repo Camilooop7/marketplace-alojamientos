@@ -1,0 +1,20 @@
+from django.db import migrations
+
+ROLES = ['Huesped', 'Anfitrion', 'Administrador']
+
+
+def crear_roles(apps, schema_editor):
+    Grupo = apps.get_model('auth', 'Group')
+    for nombre in ROLES:
+        Grupo.objects.get_or_create(name=nombre)
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('gestion_usuario', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.RunPython(crear_roles, migrations.RunPython.noop),
+    ]
