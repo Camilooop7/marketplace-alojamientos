@@ -36,8 +36,6 @@ class Reserva(models.Model):
     tarifa_limpieza = dinero(default=0)
     total_servicios = dinero(default=0)
     servicios = models.JSONField(default=list, blank=True)
-    porcentaje_tarifa_servicio = models.DecimalField(max_digits=5, decimal_places=2)
-    tarifa_servicio = dinero()
     total = dinero()
     estado = models.CharField(max_length=15, choices=Estado.choices, default=Estado.PENDIENTE_PAGO)
     clave_idempotencia = models.CharField(max_length=64, blank=True)

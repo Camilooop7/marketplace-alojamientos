@@ -17,7 +17,7 @@ function nuevaClave() {
 export default function Alojamiento() {
   const { id } = useParams()
   const navegar = useNavigate()
-  const { usuario, esHuesped } = useAuth()
+  const { usuario } = useAuth()
   const [publicacion, setPublicacion] = useState(null)
   const [calendario, setCalendario] = useState({ disponibles: [], reservadas: [] })
   const [errorCarga, setErrorCarga] = useState('')
@@ -178,21 +178,19 @@ export default function Alojamiento() {
                     {cotizacion.servicios.map((s) => (
                       <tr key={s.nombre}><td>{s.nombre}</td><td>{pesos(s.precio)}</td></tr>
                     ))}
-                    <tr><td>Tarifa de servicio ({Number(cotizacion.porcentaje_tarifa_servicio)} %)</td>
-                      <td>{pesos(cotizacion.tarifa_servicio)}</td></tr>
                     <tr className="total"><td>Total</td><td>{pesos(cotizacion.total)}</td></tr>
                   </tbody>
                 </table>
                 {!usuario ? (
                   <Link className="boton boton-primario boton-bloque" to="/ingreso"
                     state={{ desde: `/alojamientos/${id}` }}>Ingresa para reservar</Link>
-                ) : esHuesped ? (
+                ) : usuario.id !== publicacion.anfitrion_id ? (
                   <>
                     <Boton bloque cargando={enviando} onClick={confirmar}>Reservar</Boton>
                     <p className="campo-ayuda">Se generará tu factura. La reserva queda pendiente hasta el pago.</p>
                   </>
                 ) : (
-                  <p className="campo-ayuda">Solo las cuentas de huésped pueden reservar.</p>
+                  <p className="campo-ayuda">Esta es tu publicación, no puedes reservarla.</p>
                 )}
               </div>
             )}

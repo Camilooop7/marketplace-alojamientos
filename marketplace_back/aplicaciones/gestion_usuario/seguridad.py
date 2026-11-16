@@ -32,13 +32,6 @@ class SoloAnfitrion(CuentaHabilitada):
         return super().has_permission(request, view) and request.user.es_anfitrion()
 
 
-class SoloHuesped(CuentaHabilitada):
-    message = 'Solo un huésped puede realizar esta acción.'
-
-    def has_permission(self, request, view):
-        return super().has_permission(request, view) and request.user.es_huesped()
-
-
 def manejador_excepciones(exc, contexto):
     from rest_framework.views import exception_handler
     respuesta = exception_handler(exc, contexto)

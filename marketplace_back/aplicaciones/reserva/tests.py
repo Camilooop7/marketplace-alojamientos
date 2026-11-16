@@ -36,18 +36,18 @@ class CalculoTests(TestCase):
         self.publicacion, self.desayuno = preparar_alojamiento(self.anfitrion)
 
     def test_ejemplo_del_documento_ca_048(self):
-        cotizacion = calcular_cotizacion(self.publicacion, dias(5), dias(8), [self.desayuno], Decimal('10'))
+        cotizacion = calcular_cotizacion(self.publicacion, dias(5), dias(8), [self.desayuno])
         esperado = {'noches': 3, 'precio_base': Decimal('600000'), 'tarifa_limpieza': Decimal('50000'),
                     'total_servicios': Decimal('30000'), 'descuento': Decimal('0'),
-                    'tarifa_servicio': Decimal('68000'), 'total': Decimal('748000')}
+                    'total': Decimal('680000')}
         for clave, valor in esperado.items():
             self.assertEqual(cotizacion[clave], valor, clave)
 
     def test_descuento_por_estancia_larga_ca_031(self):
         self.publicacion.descuento_porcentaje = 10
         self.publicacion.noches_descuento = 7
-        siete = calcular_cotizacion(self.publicacion, dias(1), dias(8), porcentaje=0)
-        seis = calcular_cotizacion(self.publicacion, dias(1), dias(7), porcentaje=0)
+        siete = calcular_cotizacion(self.publicacion, dias(1), dias(8))
+        seis = calcular_cotizacion(self.publicacion, dias(1), dias(7))
         self.assertEqual(siete['descuento'], Decimal('140000'))
         self.assertEqual(siete['total'], Decimal('1400000') - Decimal('140000') + Decimal('50000'))
         self.assertEqual(seis['descuento'], Decimal('0'))
@@ -80,7 +80,7 @@ class CotizacionTests(BaseReserva):
         respuesta = APIClient().post(self.url, self.solicitud(), format='json')
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(respuesta.data['noches'], 3)
-        self.assertEqual(respuesta.data['total'], '748000.00')
+        self.assertEqual(respuesta.data['total'], '680000.00')
         self.assertFalse(Reserva.objects.exists())
 
     def test_solicitudes_invalidas(self):
@@ -116,7 +116,7 @@ class CrearReservaTests(BaseReserva):
         self.assertEqual(reserva.huesped, self.huesped)
         self.assertEqual(reserva.estado, Reserva.Estado.PENDIENTE_PAGO)
         self.assertRegex(reserva.codigo, r'^RES-[0-9A-F]{8}$')
-        self.assertEqual(reserva.total, Decimal('748000'))
+        self.assertEqual(reserva.total, Decimal('680000'))
         self.assertEqual(reserva.servicios, [{'nombre': 'Desayuno', 'precio': '30000.00'}])
         factura = reserva.factura
         self.assertRegex(factura.numero, r'^FAC-\d{4}-\d{6}$')
@@ -130,16 +130,22 @@ class CrearReservaTests(BaseReserva):
 
     def test_permisos_para_reservar(self):
         self.assertEqual(APIClient().post(reverse('reservas'), self.solicitud(), format='json').status_code, 401)
-        self.assertEqual(self.reservar(self.anfitrion).status_code, 403)
         Usuario.objects.filter(pk=self.huesped.pk).update(estado=Usuario.Estado.RESTRINGIDO)
         self.assertEqual(self.reservar().status_code, 403)
         self.assertFalse(Reserva.objects.exists())
 
-    def test_no_reserva_su_propia_publicacion(self):
-        self.anfitrion.groups.add(Group.objects.get(name=Usuario.ROL_HUESPED))
+    def test_anfitrion_reserva_en_otra_publicacion(self):
+        otro_anfitrion = crear_usuario('anfitrion2', 'anfitrion2@correo.com', Usuario.ROL_ANFITRION)
+        respuesta = self.reservar(otro_anfitrion)
+        self.assertEqual(respuesta.status_code, 201)
+        self.assertEqual(Reserva.objects.get().huesped, otro_anfitrion)
+
+    def test_no_reserva_su_propia_publicacion_pero_si_la_cotiza(self):
         respuesta = self.reservar(self.anfitrion)
         self.assertEqual(respuesta.status_code, 400)
         self.assertEqual(respuesta.data['publicacion'][0], 'No puedes reservar tu propia publicación.')
+        cotizacion = self.cliente.post(reverse('cotizacion'), self.solicitud(), format='json')
+        self.assertEqual(cotizacion.status_code, 200)
 
     def test_sin_reservas_dobles(self):
         self.assertEqual(self.reservar().status_code, 201)
@@ -165,8 +171,8 @@ class CrearReservaTests(BaseReserva):
         Publicacion.objects.filter(pk=self.publicacion.pk).update(precio_noche=400000)
         reserva = Reserva.objects.get()
         self.assertEqual(reserva.precio_noche, Decimal('200000'))
-        self.assertEqual(reserva.total, Decimal('748000'))
-        self.assertEqual(reserva.factura.total, Decimal('748000'))
+        self.assertEqual(reserva.total, Decimal('680000'))
+        self.assertEqual(reserva.factura.total, Decimal('680000'))
 
 
 class ConsultaReservaTests(BaseReserva):
@@ -260,7 +266,7 @@ class FacturaTests(BaseReserva):
         self.assertEqual(datos['reserva_codigo'], self.reserva.codigo)
         self.assertEqual(datos['cliente'], {'id': self.huesped.pk, 'nombre': 'Ana Pérez',
                                             'correo': self.huesped.email})
-        self.assertEqual(datos['total'], '748000.00')
+        self.assertEqual(datos['total'], '680000.00')
         self.assertEqual(datos['estado'], 'EMITIDA')
         self.assertEqual(datos['pdf'], reverse('factura_pdf', args=[self.reserva.pk]))
 

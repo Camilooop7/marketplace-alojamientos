@@ -24,7 +24,7 @@ function App() {
         <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
         <Route path="/alojamientos" element={<Alojamientos />} />
         <Route path="/alojamientos/:id" element={<Alojamiento />} />
-        <Route path="/mis-reservas" element={<RutaProtegida rol="Huesped"><MisReservas /></RutaProtegida>} />
+        <Route path="/mis-reservas" element={<RutaProtegida><MisReservas /></RutaProtegida>} />
         <Route path="/reservas-recibidas"
           element={<RutaProtegida rol="Anfitrion"><ReservasRecibidas /></RutaProtegida>} />
         <Route path="/mis-publicaciones"

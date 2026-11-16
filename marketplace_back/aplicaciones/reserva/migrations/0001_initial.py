@@ -28,8 +28,6 @@ class Migration(migrations.Migration):
                 ('tarifa_limpieza', models.DecimalField(decimal_places=2, default=0, max_digits=12)),
                 ('total_servicios', models.DecimalField(decimal_places=2, default=0, max_digits=12)),
                 ('servicios', models.JSONField(blank=True, default=list)),
-                ('porcentaje_tarifa_servicio', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('tarifa_servicio', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('total', models.DecimalField(decimal_places=2, max_digits=12)),
                 ('estado', models.CharField(choices=[('PENDIENTE_PAGO', 'Pendiente de pago'), ('CONFIRMADA', 'Confirmada'), ('CANCELADA', 'Cancelada'), ('COMPLETADA', 'Completada')], default='PENDIENTE_PAGO', max_length=15)),
                 ('clave_idempotencia', models.CharField(blank=True, max_length=64)),

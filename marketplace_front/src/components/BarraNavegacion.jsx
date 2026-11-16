@@ -18,7 +18,7 @@ export default function BarraNavegacion() {
 
         <nav className="barra-enlaces">
           <NavLink to="/alojamientos">Alojamientos</NavLink>
-          {esHuesped && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
+          {(esHuesped || esAnfitrion) && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
           {esAnfitrion && <NavLink to="/mis-publicaciones">Mis publicaciones</NavLink>}
           {esAnfitrion && <NavLink to="/reservas-recibidas">Reservas recibidas</NavLink>}
           {usuario && <NavLink to="/perfil">Mi perfil</NavLink>}

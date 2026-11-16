@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from aplicaciones.gestion_usuario.models import Auditoria
-from aplicaciones.gestion_usuario.seguridad import SoloAnfitrion, SoloHuesped
+from aplicaciones.gestion_usuario.seguridad import SoloAnfitrion
 from aplicaciones.publicacion.models import Publicacion
 from aplicaciones.publicacion.views import obtener_visible
 from .calculo import calcular_cotizacion, estancia_iniciada
@@ -58,7 +58,6 @@ def crear_reserva(usuario, datos):
             return None, False
         cotizacion = calcular_cotizacion(publicacion, datos['fecha_entrada'], datos['fecha_salida'],
                                          datos['servicios'])
-        cotizacion.pop('subtotal')
         reserva = Reserva.objects.create(
             huesped=usuario, publicacion=publicacion, fecha_entrada=datos['fecha_entrada'],
             fecha_salida=datos['fecha_salida'], huespedes=datos['huespedes'],
@@ -89,11 +88,6 @@ class CotizacionView(APIView):
 
 
 class ReservaListaView(APIView):
-    def get_permissions(self):
-        if self.request.method == 'POST':
-            return [SoloHuesped()]
-        return super().get_permissions()
-
     def get(self, request):
         consulta = filtrar_estado(
             Reserva.objects.filter(huesped=request.user).select_related('publicacion', 'huesped', 'factura'),
@@ -106,7 +100,8 @@ class ReservaListaView(APIView):
         if existente:
             return Response({'mensaje': 'Esta solicitud ya había sido registrada.',
                              'reserva': ReservaDetalleSerializador(existente).data})
-        serializador = SolicitudReservaSerializador(data=request.data, context={'request': request})
+        serializador = SolicitudReservaSerializador(
+            data=request.data, context={'request': request, 'reservando': True})
         serializador.is_valid(raise_exception=True)
         reserva, creada = crear_reserva(request.user, serializador.validated_data)
         if reserva is None:
