@@ -15,7 +15,6 @@ import Alojamiento from './pages/Alojamiento'
 import MisReservas from './pages/MisReservas'
 import ReservasRecibidas from './pages/ReservasRecibidas'
 import MisPublicaciones from './pages/MisPublicaciones'
-import EditarPublicacion from './pages/EditarPublicacion'
 
 function App() {
   return (
@@ -30,10 +29,6 @@ function App() {
           element={<RutaProtegida rol="Anfitrion"><ReservasRecibidas /></RutaProtegida>} />
         <Route path="/mis-publicaciones"
           element={<RutaProtegida rol="Anfitrion"><MisPublicaciones /></RutaProtegida>} />
-        <Route path="/publicaciones/nueva"
-          element={<RutaProtegida rol="Anfitrion"><EditarPublicacion /></RutaProtegida>} />
-        <Route path="/publicaciones/:id/editar"
-          element={<RutaProtegida rol="Anfitrion"><EditarPublicacion /></RutaProtegida>} />
         <Route
           path="/administracion/usuarios"
           element={<RutaProtegida soloAdministrador><AdminUsuarios /></RutaProtegida>}

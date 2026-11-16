@@ -22,12 +22,9 @@ export default function MisPublicaciones() {
       <div className="contenedor">
         <h1>Mis publicaciones</h1>
         <Alerta>{error}</Alerta>
-        <div className="barra-herramientas">
-          <Link className="boton boton-primario" to="/publicaciones/nueva">Nueva publicación</Link>
-        </div>
 
         {cargando ? <p className="cargando">Cargando publicaciones...</p> : lista.length === 0 ? (
-          <p className="vacio">Aún no tienes publicaciones. Crea la primera para empezar a recibir reservas.</p>
+          <p className="vacio">Aún no tienes publicaciones.</p>
         ) : (
           <div className="tabla-contenedor">
             <table>
@@ -44,7 +41,6 @@ export default function MisPublicaciones() {
                     <td><span className={`insignia insignia-publicacion-${item.estado.toLowerCase()}`}>
                       {ETIQUETA_PUBLICACION[item.estado]}</span></td>
                     <td className="botones">
-                      <Link className="boton boton-fantasma boton-chico" to={`/publicaciones/${item.id}/editar`}>Editar</Link>
                       {item.estado === 'ACTIVA' && (
                         <Link className="boton boton-fantasma boton-chico" to={`/alojamientos/${item.id}`}>Ver</Link>
                       )}

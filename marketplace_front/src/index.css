@@ -1047,18 +1047,11 @@ a:hover {
     gap: 16px;
 }
 
-.calendario ul, .historial ul, .lista-periodos {
+.calendario ul, .historial ul {
     margin: 0;
     padding-left: 18px;
     color: var(--bruma);
     font-weight: 300;
-}
-
-.lista-periodos li {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 6px;
 }
 
 .caja-reserva {
@@ -1137,32 +1130,13 @@ a:hover {
     color: var(--ceniza);
 }
 
-.filtro-fecha input, .campo textarea, .fila-servicio input {
+.filtro-fecha input {
     padding: 9px 12px;
     border: 1px solid var(--borde);
     border-radius: 8px;
     font: inherit;
     background: var(--profundo);
     color: var(--cuarzo);
-}
-
-.campo textarea {
-    width: 100%;
-    font-weight: 300;
-    resize: vertical;
-}
-
-.campo textarea:focus, .fila-servicio input:focus {
-    outline: none;
-    border-color: var(--azul);
-    box-shadow: 0 0 0 3px rgba(40, 98, 215, 0.25);
-}
-
-.fila-servicio {
-    display: grid;
-    grid-template-columns: 1fr 140px auto;
-    gap: 8px;
-    margin-bottom: 8px;
 }
 
 .barra-herramientas {
@@ -1308,31 +1282,12 @@ tr:last-child td {
     opacity: 1;
 }
 
-.galeria-miniaturas img, .lista-imagenes img {
+.galeria-miniaturas img {
     width: 96px;
     height: 64px;
     object-fit: cover;
     border-radius: 8px;
     display: block;
-}
-
-.lista-imagenes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 16px;
-}
-
-.lista-imagenes figure {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-start;
-    padding: 8px;
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    background: var(--profundo);
 }
 
 @media (max-width: 860px) {
