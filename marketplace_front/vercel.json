@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://marketplace-alojamientos.vercel.app/api/:path*" },
+    { "source": "/api/(.*)", "destination": "https://marketplace-alojamientos.vercel.app/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

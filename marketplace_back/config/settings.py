@@ -8,7 +8,7 @@ env = environ.Env(DEBUG=(bool, False))
 environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY')
-DEBUG = env('DEBUG')
+DEBUG = env('DEBUG') and not env.bool('VERCEL', default=False)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app'])
 
 
@@ -119,7 +119,11 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'aplicaciones.gestion_usuario.seguridad.manejador_excepciones',
 }
 
-ORIGENES_FRONT = list(dict.fromkeys(['http://localhost:5173', FRONTEND_URL.rstrip('/')]))
+ORIGENES_FRONT = list(dict.fromkeys([
+    'http://localhost:5173',
+    'https://marketplace-alojamientos-kmp6.vercel.app',
+    FRONTEND_URL.rstrip('/'),
+]))
 CORS_ALLOWED_ORIGINS = ORIGENES_FRONT
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = ORIGENES_FRONT
