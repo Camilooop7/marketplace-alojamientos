@@ -9,7 +9,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.vercel.app'])
 
 
 INSTALLED_APPS = [
@@ -119,6 +119,14 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'aplicaciones.gestion_usuario.seguridad.manejador_excepciones',
 }
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
+ORIGENES_FRONT = list(dict.fromkeys(['http://localhost:5173', FRONTEND_URL.rstrip('/')]))
+CORS_ALLOWED_ORIGINS = ORIGENES_FRONT
 CORS_ALLOW_CREDENTIALS = True
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173']
+CSRF_TRUSTED_ORIGINS = ORIGENES_FRONT
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
