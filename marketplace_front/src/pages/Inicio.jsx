@@ -20,6 +20,7 @@ export default function Inicio() {
             Marketplace de alojamientos. Crea tu cuenta como huésped o anfitrión y empieza.
           </p>
           <div className="acciones">
+            <Link className="boton boton-fantasma" to="/alojamientos">Ver alojamientos</Link>
             {usuario ? (
               <Link className="boton boton-primario" to="/perfil">Ir a mi perfil</Link>
             ) : (

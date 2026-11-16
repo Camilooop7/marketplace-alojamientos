@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 import environ
 
@@ -22,6 +23,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'aplicaciones.gestion_usuario',
+    'aplicaciones.publicacion',
+    'aplicaciones.reserva',
 ]
 
 AUTH_USER_MODEL = 'gestion_usuario.Usuario'
@@ -106,6 +109,8 @@ else:
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default=CORREO_USUARIO or 'marketplace@localhost')
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:5173')
 PASSWORD_RESET_TIMEOUT = 1800
+
+TARIFA_SERVICIO_PORCENTAJE = Decimal(env('TARIFA_SERVICIO_PORCENTAJE', default='10'))
 
 
 REST_FRAMEWORK = {

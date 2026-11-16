@@ -10,6 +10,12 @@ import Restablecer from './pages/Restablecer'
 import Reactivar from './pages/Reactivar'
 import Perfil from './pages/Perfil'
 import AdminUsuarios from './pages/AdminUsuarios'
+import Alojamientos from './pages/Alojamientos'
+import Alojamiento from './pages/Alojamiento'
+import MisReservas from './pages/MisReservas'
+import ReservasRecibidas from './pages/ReservasRecibidas'
+import MisPublicaciones from './pages/MisPublicaciones'
+import EditarPublicacion from './pages/EditarPublicacion'
 
 function App() {
   return (
@@ -17,6 +23,17 @@ function App() {
       <Route element={<Estructura />}>
         <Route path="/" element={<Inicio />} />
         <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
+        <Route path="/alojamientos" element={<Alojamientos />} />
+        <Route path="/alojamientos/:id" element={<Alojamiento />} />
+        <Route path="/mis-reservas" element={<RutaProtegida rol="Huesped"><MisReservas /></RutaProtegida>} />
+        <Route path="/reservas-recibidas"
+          element={<RutaProtegida rol="Anfitrion"><ReservasRecibidas /></RutaProtegida>} />
+        <Route path="/mis-publicaciones"
+          element={<RutaProtegida rol="Anfitrion"><MisPublicaciones /></RutaProtegida>} />
+        <Route path="/publicaciones/nueva"
+          element={<RutaProtegida rol="Anfitrion"><EditarPublicacion /></RutaProtegida>} />
+        <Route path="/publicaciones/:id/editar"
+          element={<RutaProtegida rol="Anfitrion"><EditarPublicacion /></RutaProtegida>} />
         <Route
           path="/administracion/usuarios"
           element={<RutaProtegida soloAdministrador><AdminUsuarios /></RutaProtegida>}
