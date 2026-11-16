@@ -19,12 +19,13 @@ class ImagenSerializador(serializers.ModelSerializer):
 
 class PublicacionSerializador(serializers.ModelSerializer):
     anfitrion = serializers.CharField(source='anfitrion.get_full_name', read_only=True)
+    anfitrion_id = serializers.IntegerField(read_only=True)
     servicios = ServicioSerializador(many=True, read_only=True)
     imagenes = ImagenSerializador(many=True, read_only=True)
 
     class Meta:
         model = Publicacion
-        fields = ['id', 'anfitrion', 'titulo', 'descripcion', 'ciudad', 'direccion', 'tipo',
+        fields = ['id', 'anfitrion', 'anfitrion_id', 'titulo', 'descripcion', 'ciudad', 'direccion', 'tipo',
                   'capacidad', 'precio_noche', 'tarifa_limpieza', 'descuento_porcentaje',
                   'noches_descuento', 'estado', 'servicios', 'imagenes', 'fecha_creacion', 'fecha_actualizacion']
         read_only_fields = fields

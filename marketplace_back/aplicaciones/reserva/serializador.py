@@ -35,7 +35,7 @@ class SolicitudReservaSerializador(serializers.Serializer):
         if publicacion.estado != Publicacion.Estado.ACTIVA:
             raise serializers.ValidationError(
                 {'publicacion': 'Este alojamiento no está disponible para reservar.'})
-        if usuario.is_authenticated and publicacion.anfitrion_id == usuario.pk:
+        if self.context.get('reservando') and publicacion.anfitrion_id == usuario.pk:
             raise serializers.ValidationError({'publicacion': 'No puedes reservar tu propia publicación.'})
         if datos['huespedes'] > publicacion.capacidad:
             raise serializers.ValidationError({'huespedes': 'La capacidad máxima es de {0} huéspedes.'.format(
@@ -74,7 +74,7 @@ class ReservaSerializador(serializers.ModelSerializer):
         model = Reserva
         fields = ['id', 'codigo', 'publicacion', 'huesped', 'fecha_entrada', 'fecha_salida', 'huespedes',
                   'noches', 'precio_noche', 'precio_base', 'descuento', 'tarifa_limpieza', 'servicios',
-                  'total_servicios', 'porcentaje_tarifa_servicio', 'tarifa_servicio', 'total', 'estado',
+                  'total_servicios', 'total', 'estado',
                   'motivo_cancelacion', 'fecha_cancelacion',
                   'fecha_creacion', 'factura']
         read_only_fields = fields

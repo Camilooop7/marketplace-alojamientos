@@ -152,10 +152,6 @@ def filas_detalle(reserva):
         filas.append((texto('Tarifa de limpieza', CELDA), pesos(reserva.tarifa_limpieza)))
     for servicio in reserva.servicios:
         filas.append((texto(servicio['nombre'], CELDA), pesos(servicio['precio'])))
-    subtotal = reserva.precio_base - reserva.descuento + reserva.tarifa_limpieza + reserva.total_servicios
-    filas.append((texto('Subtotal', CELDA), pesos(subtotal)))
-    filas.append((texto('Tarifa de servicio ({0:f} %)'.format(reserva.porcentaje_tarifa_servicio.normalize()),
-                        CELDA), pesos(reserva.tarifa_servicio)))
     return filas
 
 

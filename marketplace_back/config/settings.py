@@ -1,4 +1,3 @@
-from decimal import Decimal
 from pathlib import Path
 import environ
 
@@ -110,7 +109,6 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default=CORREO_USUARIO or 'market
 FRONTEND_URL = env('FRONTEND_URL', default='http://localhost:5173')
 PASSWORD_RESET_TIMEOUT = 1800
 
-TARIFA_SERVICIO_PORCENTAJE = Decimal(env('TARIFA_SERVICIO_PORCENTAJE', default='10'))
 
 
 REST_FRAMEWORK = {
