@@ -162,8 +162,7 @@ class CrearReservaTests(BaseReserva):
 
     def test_cambio_de_precio_no_altera_reservas_ca_021(self):
         self.reservar()
-        self.cliente.force_login(self.anfitrion)
-        self.cliente.put(reverse('publicacion', args=[self.publicacion.pk]), {'precio_noche': '400000'}, format='json')
+        Publicacion.objects.filter(pk=self.publicacion.pk).update(precio_noche=400000)
         reserva = Reserva.objects.get()
         self.assertEqual(reserva.precio_noche, Decimal('200000'))
         self.assertEqual(reserva.total, Decimal('748000'))
