@@ -87,6 +87,10 @@ class Auditoria(models.Model):
         CAMBIO_ESTADO = 'CAMBIO_ESTADO', 'Cambio de estado de la cuenta'
         RECUPERACION = 'RECUPERACION', 'Recuperación de contraseña'
         RESTRICCION = 'RESTRICCION', 'Restricción de cuenta'
+        PUBLICACION = 'PUBLICACION', 'Gestión de publicación'
+        RESERVA = 'RESERVA', 'Creación de reserva'
+        CANCELACION = 'CANCELACION', 'Cancelación de reserva'
+        FACTURA = 'FACTURA', 'Generación de factura'
 
     class Resultado(models.TextChoices):
         EXITOSO = 'EXITOSO', 'Exitoso'

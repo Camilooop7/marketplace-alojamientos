@@ -5,8 +5,8 @@ function Cargando() {
     return <p className="cargando">Cargando...</p>
 }
 
-export function RutaProtegida({children, soloAdministrador = false}) {
-    const {usuario, cargando, esAdministrador} = useAuth()
+export function RutaProtegida({children, soloAdministrador = false, rol = null}) {
+    const {usuario, cargando, esAdministrador, esHuesped, esAnfitrion} = useAuth()
     const ubicacion = useLocation()
 
     if (cargando) return <Cargando/>
@@ -14,6 +14,8 @@ export function RutaProtegida({children, soloAdministrador = false}) {
         return <Navigate to="/ingreso" replace state={{desde: ubicacion.pathname}}/>
     }
     if (soloAdministrador && !esAdministrador) return <Navigate to="/" replace/>
+    if (rol === 'Huesped' && !esHuesped) return <Navigate to="/" replace/>
+    if (rol === 'Anfitrion' && !esAnfitrion) return <Navigate to="/" replace/>
     return children
 }
 

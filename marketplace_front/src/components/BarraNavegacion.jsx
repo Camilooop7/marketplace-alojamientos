@@ -3,7 +3,7 @@ import { useAuth } from '../context/contextoAuth'
 import Boton from './Boton'
 
 export default function BarraNavegacion() {
-  const { usuario, esAdministrador, salir } = useAuth()
+  const { usuario, esAdministrador, esHuesped, esAnfitrion, salir } = useAuth()
   const navegar = useNavigate()
 
   async function cerrarSesion() {
@@ -17,6 +17,10 @@ export default function BarraNavegacion() {
         <Link to="/" className="logo">Market<br />place</Link>
 
         <nav className="barra-enlaces">
+          <NavLink to="/alojamientos">Alojamientos</NavLink>
+          {(esHuesped || esAnfitrion) && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
+          {esAnfitrion && <NavLink to="/mis-publicaciones">Mis publicaciones</NavLink>}
+          {esAnfitrion && <NavLink to="/reservas-recibidas">Reservas recibidas</NavLink>}
           {usuario && <NavLink to="/perfil">Mi perfil</NavLink>}
           {esAdministrador && <NavLink to="/administracion/usuarios">Usuarios</NavLink>}
         </nav>
