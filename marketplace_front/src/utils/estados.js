@@ -45,3 +45,8 @@ export function hoyIso(dias = 0) {
   fecha.setDate(fecha.getDate() + dias)
   return fecha.toLocaleDateString('en-CA')
 }
+
+export const entero = (valor) => Number(valor || 0).toLocaleString('es-CO')
+
+export const decimal = (valor) =>
+  Number(valor || 0).toLocaleString('es-CO', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
