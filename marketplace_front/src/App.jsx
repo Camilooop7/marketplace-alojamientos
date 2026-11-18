@@ -15,6 +15,8 @@ import Alojamiento from './pages/Alojamiento'
 import MisReservas from './pages/MisReservas'
 import ReservasRecibidas from './pages/ReservasRecibidas'
 import MisPublicaciones from './pages/MisPublicaciones'
+import Reportes from './pages/Reportes'
+import AdminReportes from './pages/AdminReportes'
 
 function App() {
   return (
@@ -29,10 +31,15 @@ function App() {
           element={<RutaProtegida rol="Anfitrion"><ReservasRecibidas /></RutaProtegida>} />
         <Route path="/mis-publicaciones"
           element={<RutaProtegida rol="Anfitrion"><MisPublicaciones /></RutaProtegida>} />
+        <Route path="/reportes" element={<RutaProtegida rol="Anfitrion"><Reportes /></RutaProtegida>} />
         <Route
           path="/administracion/usuarios"
           element={<RutaProtegida soloAdministrador><AdminUsuarios /></RutaProtegida>}
         />
+        <Route path="/administracion/reportes"
+          element={<RutaProtegida soloAdministrador><AdminReportes /></RutaProtegida>} />
+        <Route path="/administracion/reportes/:id"
+          element={<RutaProtegida soloAdministrador><Reportes /></RutaProtegida>} />
       </Route>
 
       <Route path="/registro" element={<RutaPublica><Registro /></RutaPublica>} />
