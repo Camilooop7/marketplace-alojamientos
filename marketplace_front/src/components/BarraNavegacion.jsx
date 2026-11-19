@@ -21,8 +21,10 @@ export default function BarraNavegacion() {
           {(esHuesped || esAnfitrion) && <NavLink to="/mis-reservas">Mis reservas</NavLink>}
           {esAnfitrion && <NavLink to="/mis-publicaciones">Mis publicaciones</NavLink>}
           {esAnfitrion && <NavLink to="/reservas-recibidas">Reservas recibidas</NavLink>}
+          {esAnfitrion && <NavLink to="/reportes">Mis reportes</NavLink>}
           {usuario && <NavLink to="/perfil">Mi perfil</NavLink>}
           {esAdministrador && <NavLink to="/administracion/usuarios">Usuarios</NavLink>}
+          {esAdministrador && <NavLink to="/administracion/reportes">Reportes</NavLink>}
         </nav>
 
         <div className="barra-acciones">

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'aplicaciones.gestion_usuario',
     'aplicaciones.publicacion',
     'aplicaciones.reserva',
+    'aplicaciones.reporte',
 ]
 
 AUTH_USER_MODEL = 'gestion_usuario.Usuario'
