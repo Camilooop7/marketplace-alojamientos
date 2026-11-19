@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import Alerta from '../components/Alerta'
 import TarjetaAlojamiento from '../components/TarjetaAlojamiento'
 import { listarPublicaciones } from '../api/publicaciones'
 import { useAuth } from '../context/contextoAuth'
 
 export default function Inicio() {
   const { usuario } = useAuth()
+  const ubicacion = useLocation()
+  const aviso = ubicacion.state && ubicacion.state.aviso
   const [lista, setLista] = useState([])
   const [cargando, setCargando] = useState(true)
 
@@ -20,6 +23,7 @@ export default function Inicio() {
     <>
       <section className="hero">
         <div className="contenedor">
+          <Alerta>{aviso}</Alerta>
           <h1>Un lugar donde quedarse.</h1>
           <p>
             Marketplace de alojamientos. Crea tu cuenta como huésped o anfitrión y empieza.

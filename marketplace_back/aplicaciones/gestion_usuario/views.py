@@ -1,10 +1,12 @@
+import re
+
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import default_token_generator
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -27,6 +29,16 @@ def csrf(request):
 class VistaPublica(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+
+
+TOKEN_RECUPERACION = re.compile(r'[0-9a-z]+-[0-9a-f]{32}')
+
+
+def obtener_usuario(pk):
+    usuario = Usuario.objects.filter(pk=pk).first()
+    if usuario is None:
+        raise NotFound('No encontrado.')
+    return usuario
 
 
 def recurso_usuario(usuario):
@@ -138,7 +150,7 @@ class IngresarView(VistaPublica):
         serializador.is_valid(raise_exception=True)
         usuario = autenticar_credenciales(request, serializador.validated_data)
         if usuario is None:
-            return Response({'mensaje': 'Correo, usuario o contraseña incorrectos.'},
+            return Response({'mensaje': 'Correo o contraseña incorrectos'},
                             status=status.HTTP_401_UNAUTHORIZED)
         rechazo = rechazar_ingreso(usuario)
         if rechazo is not None:
@@ -171,8 +183,8 @@ class RecuperarView(VistaPublica):
             if not enviar_enlace_recuperacion(usuario, token):
                 return Response({'mensaje': 'No se pudo enviar el correo. Inténtalo más tarde.'},
                                 status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        return Response({'mensaje': 'Si el correo está registrado, te enviamos las instrucciones '
-                                    'para restablecer tu contraseña. El enlace vence en 30 minutos.'})
+        return Response({'mensaje': 'Si el correo está registrado, se generó un enlace para restablecer '
+                                    'tu contraseña.'})
 
 
 class RestablecerView(VistaPublica):
@@ -182,8 +194,9 @@ class RestablecerView(VistaPublica):
         datos = serializador.validated_data
         usuario = buscar_por_correo(datos['correo'])
         if usuario is None or not default_token_generator.check_token(usuario, datos['token']):
-            return Response({'mensaje': 'El enlace de recuperación no es válido o ya venció.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            mensaje = ('El enlace expiró, solicita uno nuevo' if TOKEN_RECUPERACION.fullmatch(datos['token'])
+                       else 'El enlace de recuperación no es válido o ya venció.')
+            return Response({'mensaje': mensaje}, status=status.HTTP_400_BAD_REQUEST)
         validar_contrasena_del_usuario(datos['contrasena'], usuario)
         usuario.set_password(datos['contrasena'])
         usuario.save(update_fields=['password'])
@@ -199,7 +212,7 @@ class ReactivarView(VistaPublica):
         serializador.is_valid(raise_exception=True)
         usuario = autenticar_credenciales(request, serializador.validated_data)
         if usuario is None:
-            return Response({'mensaje': 'Correo, usuario o contraseña incorrectos.'},
+            return Response({'mensaje': 'Correo o contraseña incorrectos'},
                             status=status.HTTP_401_UNAUTHORIZED)
         if usuario.estado == Usuario.Estado.RESTRINGIDO:
             return Response(
@@ -268,7 +281,7 @@ class RestringirUsuarioView(APIView):
     permission_classes = [SoloAdministrador]
 
     def post(self, request, pk):
-        usuario = get_object_or_404(Usuario, pk=pk)
+        usuario = obtener_usuario(pk)
         if usuario.pk == request.user.pk:
             return Response({'mensaje': 'No puedes restringir tu propia cuenta.'},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -288,7 +301,7 @@ class LiberarUsuarioView(APIView):
     permission_classes = [SoloAdministrador]
 
     def post(self, request, pk):
-        usuario = get_object_or_404(Usuario, pk=pk)
+        usuario = obtener_usuario(pk)
         if usuario.estado != Usuario.Estado.RESTRINGIDO:
             return Response({'mensaje': 'La cuenta no está restringida.'},
                             status=status.HTTP_409_CONFLICT)

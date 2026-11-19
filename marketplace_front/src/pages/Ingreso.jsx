@@ -8,6 +8,13 @@ import useFormulario from '../hooks/useFormulario'
 import { useAuth } from '../context/contextoAuth'
 import { extraerErrores, sinErrores } from '../utils/errores'
 
+function pantallaDelRol(rol) {
+  const roles = rol ? rol.split(', ') : []
+  if (roles.includes('Administrador')) return '/administracion/usuarios'
+  if (roles.includes('Anfitrion')) return '/mis-publicaciones'
+  return '/perfil'
+}
+
 export default function Ingreso() {
   const { ingresar } = useAuth()
   const navegar = useNavigate()
@@ -23,8 +30,8 @@ export default function Ingreso() {
     setCargando(true)
     setErrores(sinErrores)
     try {
-      await ingresar(datos.correo_o_usuario, datos.contrasena)
-      navegar(estado.desde || '/perfil', { replace: true })
+      const { usuario } = await ingresar(datos.correo_o_usuario, datos.contrasena)
+      navegar(estado.desde || pantallaDelRol(usuario.rol), { replace: true })
     } catch (error) {
       const detalle = extraerErrores(error)
       if (detalle.datos.requiere_verificacion) {

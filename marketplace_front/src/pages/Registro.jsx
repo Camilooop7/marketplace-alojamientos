@@ -84,7 +84,7 @@ export default function Registro() {
           ayuda="Letras sin tilde, números, punto, guion o guion bajo. Mínimo 4." />
         <Campo etiqueta="Correo electrónico" nombre="correo" tipo="email" valor={datos.correo}
           onCambio={cambiar} error={campos.correo} autoComplete="email" />
-        <Campo etiqueta="Teléfono (opcional)" nombre="telefono" tipo="tel" valor={datos.telefono}
+        <Campo etiqueta="Teléfono" nombre="telefono" tipo="tel" valor={datos.telefono}
           onCambio={cambiar} error={campos.telefono} autoComplete="tel" inputMode="numeric"
           ayuda="Solo números, entre 7 y 15 dígitos." />
         <Campo etiqueta="Contraseña" nombre="contrasena" tipo="password" valor={datos.contrasena}

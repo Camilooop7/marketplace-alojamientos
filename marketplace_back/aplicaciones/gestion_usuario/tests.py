@@ -229,7 +229,7 @@ class IngresoTests(BaseApi):
             with self.subTest(credencial=credencial):
                 respuesta = self.ingresar(credencial, clave)
                 self.assertEqual(respuesta.status_code, 401)
-                self.assertEqual(respuesta.data['mensaje'], 'Correo, usuario o contraseña incorrectos.')
+                self.assertEqual(respuesta.data['mensaje'], 'Correo o contraseña incorrectos')
         fallido = self.ultima_auditoria(Auditoria.Accion.ACCESO_FALLIDO)
         self.assertEqual(fallido.resultado, Auditoria.Resultado.RECHAZADO)
         self.assertEqual(self.cliente.get(reverse('perfil')).status_code, 401)
