@@ -1,3 +1,4 @@
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import BasePermission
 
@@ -30,6 +31,16 @@ class SoloAnfitrion(CuentaHabilitada):
 
     def has_permission(self, request, view):
         return super().has_permission(request, view) and request.user.es_anfitrion()
+
+
+class TokenReactivacion(PasswordResetTokenGenerator):
+    key_salt = 'aplicaciones.gestion_usuario.seguridad.TokenReactivacion'
+
+    def _make_hash_value(self, usuario, momento):
+        return '{0}{1}{2}{3}'.format(usuario.pk, usuario.password, usuario.estado, momento)
+
+
+token_reactivacion = TokenReactivacion()
 
 
 def manejador_excepciones(exc, contexto):

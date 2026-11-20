@@ -12,10 +12,12 @@ export const salir = () => clienteApi.post('/auth/salir/')
 
 export const recuperar = (datos) => clienteApi.post('/auth/recuperar/', datos)
 export const restablecer = (datos) => clienteApi.post('/auth/restablecer/', datos)
+export const solicitarReactivacion = (datos) => clienteApi.post('/auth/solicitar-reactivacion/', datos)
 export const reactivar = (datos) => clienteApi.post('/auth/reactivar/', datos)
 
 export const obtenerPerfil = () => clienteApi.get('/usuarios/perfil/')
 export const actualizarPerfil = (datos) => clienteApi.put('/usuarios/perfil/', datos)
+export const cambiarContrasena = (datos) => clienteApi.post('/usuarios/perfil/contrasena/', datos)
 export const desactivarCuenta = () => clienteApi.patch('/usuarios/perfil/desactivar/')
 
 export const listarUsuarios = () => clienteApi.get('/administracion/usuarios/')

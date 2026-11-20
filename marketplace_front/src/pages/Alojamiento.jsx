@@ -181,10 +181,7 @@ export default function Alojamiento() {
                     <tr className="total"><td>Total</td><td>{pesos(cotizacion.total)}</td></tr>
                   </tbody>
                 </table>
-                {!usuario ? (
-                  <Link className="boton boton-primario boton-bloque" to="/ingreso"
-                    state={{ desde: `/alojamientos/${id}` }}>Ingresa para reservar</Link>
-                ) : usuario.id !== publicacion.anfitrion_id ? (
+                {usuario.id !== publicacion.anfitrion_id ? (
                   <>
                     <Boton bloque cargando={enviando} onClick={confirmar}>Reservar</Boton>
                     <p className="campo-ayuda">Se generará tu factura. La reserva queda pendiente hasta el pago.</p>

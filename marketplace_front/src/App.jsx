@@ -21,12 +21,12 @@ import AdminReportes from './pages/AdminReportes'
 function App() {
   return (
     <Routes>
-      <Route element={<Estructura />}>
+      <Route element={<RutaProtegida><Estructura /></RutaProtegida>}>
         <Route path="/" element={<Inicio />} />
-        <Route path="/perfil" element={<RutaProtegida><Perfil /></RutaProtegida>} />
+        <Route path="/perfil" element={<Perfil />} />
         <Route path="/alojamientos" element={<Alojamientos />} />
         <Route path="/alojamientos/:id" element={<Alojamiento />} />
-        <Route path="/mis-reservas" element={<RutaProtegida><MisReservas /></RutaProtegida>} />
+        <Route path="/mis-reservas" element={<MisReservas />} />
         <Route path="/reservas-recibidas"
           element={<RutaProtegida rol="Anfitrion"><ReservasRecibidas /></RutaProtegida>} />
         <Route path="/mis-publicaciones"
@@ -49,7 +49,7 @@ function App() {
       <Route path="/restablecer" element={<Restablecer />} />
       <Route path="/reactivar" element={<Reactivar />} />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/ingreso" replace />} />
     </Routes>
   )
 }

@@ -8,7 +8,7 @@ export default function BarraNavegacion() {
 
   async function cerrarSesion() {
     await salir().catch(() => {})
-    navegar('/')
+    navegar('/ingreso')
   }
 
   return (
@@ -22,23 +22,14 @@ export default function BarraNavegacion() {
           {esAnfitrion && <NavLink to="/mis-publicaciones">Mis publicaciones</NavLink>}
           {esAnfitrion && <NavLink to="/reservas-recibidas">Reservas recibidas</NavLink>}
           {esAnfitrion && <NavLink to="/reportes">Mis reportes</NavLink>}
-          {usuario && <NavLink to="/perfil">Mi perfil</NavLink>}
+          <NavLink to="/perfil">Mi perfil</NavLink>
           {esAdministrador && <NavLink to="/administracion/usuarios">Usuarios</NavLink>}
           {esAdministrador && <NavLink to="/administracion/reportes">Reportes</NavLink>}
         </nav>
 
         <div className="barra-acciones">
-          {usuario ? (
-            <>
-              <span className="saludo">Hola, {usuario.nombres}</span>
-              <Boton variante="fantasma" chico onClick={cerrarSesion}>Salir</Boton>
-            </>
-          ) : (
-            <>
-              <Link className="boton boton-fantasma boton-chico" to="/ingreso">Ingresar</Link>
-              <Link className="boton boton-primario boton-chico" to="/registro">Crear cuenta</Link>
-            </>
-          )}
+          <span className="saludo">Hola, {usuario.nombres}</span>
+          <Boton variante="fantasma" chico onClick={cerrarSesion}>Salir</Boton>
         </div>
       </div>
     </header>

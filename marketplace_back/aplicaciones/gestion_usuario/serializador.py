@@ -27,7 +27,7 @@ def validar_contrasena_del_usuario(contrasena, usuario):
     try:
         validate_password(contrasena, usuario)
     except DjangoValidationError as error:
-        raise serializers.ValidationError({'contrasena': list(error.messages)})
+        raise serializers.ValidationError({'contrasena': error.messages[0]})
 
 
 def validar_telefono(valor):
@@ -41,13 +41,16 @@ def validar_telefono(valor):
 class ContrasenaNuevaSerializador(serializers.Serializer):
     contrasena = serializers.CharField(
         write_only=True, max_length=64, trim_whitespace=False,
-        error_messages=obligatorio('Escribe la contraseña.'))
+        error_messages=obligatorio('Este campo es obligatorio.'))
     confirmar_contrasena = serializers.CharField(
         write_only=True, trim_whitespace=False,
         error_messages=obligatorio('Confirma la contraseña.'))
 
     def validate_contrasena(self, valor):
-        validate_password(valor)
+        try:
+            validate_password(valor)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(error.messages[0])
         return valor
 
     def validate(self, datos):
@@ -60,17 +63,22 @@ class ContrasenaNuevaSerializador(serializers.Serializer):
 class RegistroSerializador(ContrasenaNuevaSerializador):
     nombre_usuario = serializers.CharField(
         max_length=150, error_messages=obligatorio('Escribe el nombre de usuario.'))
-    nombres = serializers.CharField(max_length=150, error_messages=obligatorio('Escribe los nombres.'))
-    apellidos = serializers.CharField(max_length=150, error_messages=obligatorio('Escribe los apellidos.'))
+    nombres = serializers.CharField(max_length=150, error_messages=obligatorio('Este campo es obligatorio.'))
+    apellidos = serializers.CharField(max_length=150, error_messages=obligatorio('Este campo es obligatorio.'))
     correo = serializers.EmailField(max_length=120, error_messages={
-        **obligatorio('Escribe el correo electrónico.'),
+        **obligatorio('Este campo es obligatorio.'),
         'invalid': 'Escribe un correo electrónico válido, por ejemplo nombre@dominio.com.',
     })
-    telefono = serializers.CharField(required=False, allow_blank=True, max_length=15)
-    rol = serializers.ChoiceField(
-        choices=[Usuario.ROL_HUESPED, Usuario.ROL_ANFITRION],
-        default=Usuario.ROL_HUESPED,
-        error_messages={'invalid_choice': 'Solo puedes registrarte como Huesped o Anfitrion.'})
+    telefono = serializers.CharField(error_messages=obligatorio('Este campo es obligatorio.'))
+    rol = serializers.CharField(error_messages=obligatorio('Este campo es obligatorio.'))
+
+    def validate_contrasena(self, valor):
+        return valor
+
+    def validate_rol(self, valor):
+        if valor not in [Usuario.ROL_HUESPED, Usuario.ROL_ANFITRION]:
+            raise serializers.ValidationError('Solo puedes registrarte como Huésped o Anfitrión.')
+        return valor
 
     def validate_nombre_usuario(self, valor):
         valor = normalizar_espacios(valor)
@@ -91,7 +99,7 @@ class RegistroSerializador(ContrasenaNuevaSerializador):
     def validate_correo(self, valor):
         valor = valor.strip().lower()
         if Usuario.objects.filter(email__iexact=valor).exists():
-            raise serializers.ValidationError('Ya existe un usuario con ese correo electrónico.')
+            raise serializers.ValidationError('El correo ya está registrado')
         return valor
 
     def validate_telefono(self, valor):
@@ -121,7 +129,7 @@ class RegistroSerializador(ContrasenaNuevaSerializador):
 class PerfilSerializador(serializers.ModelSerializer):
     nombre_usuario = serializers.CharField(source='username', read_only=True)
     nombres = serializers.CharField(
-        source='first_name', max_length=150, error_messages=obligatorio('Escribe los nombres.'))
+        source='first_name', max_length=150, error_messages=obligatorio('Este campo es obligatorio.'))
     apellidos = serializers.CharField(
         source='last_name', max_length=150, error_messages=obligatorio('Escribe los apellidos.'))
     correo = serializers.EmailField(source='email', read_only=True)
@@ -148,9 +156,9 @@ class PerfilSerializador(serializers.ModelSerializer):
 
 class CredencialesSerializador(serializers.Serializer):
     correo_o_usuario = serializers.CharField(
-        error_messages=obligatorio('Escribe tu correo o nombre de usuario.'))
+        error_messages=obligatorio('Este campo es obligatorio.'))
     contrasena = serializers.CharField(
-        trim_whitespace=False, error_messages=obligatorio('Escribe la contraseña.'))
+        trim_whitespace=False, error_messages=obligatorio('Este campo es obligatorio.'))
 
 
 class CorreoSerializador(serializers.Serializer):
@@ -168,6 +176,29 @@ class VerificacionSerializador(serializers.Serializer):
 class RestablecerSerializador(ContrasenaNuevaSerializador):
     correo = serializers.EmailField(error_messages=obligatorio('Escribe el correo electrónico.'))
     token = serializers.CharField(error_messages=obligatorio('Falta el código de recuperación.'))
+
+
+class ReactivacionSerializador(serializers.Serializer):
+    correo = serializers.EmailField(error_messages=obligatorio('Escribe el correo electrónico.'))
+    token = serializers.CharField(error_messages=obligatorio('Falta el código de reactivación.'))
+
+
+class CambioContrasenaSerializador(ContrasenaNuevaSerializador):
+    contrasena_actual = serializers.CharField(
+        write_only=True, trim_whitespace=False,
+        error_messages=obligatorio('Escribe tu contraseña actual.'))
+
+    def validate(self, datos):
+        datos = super().validate(datos)
+        usuario = self.context['usuario']
+        if not usuario.check_password(datos['contrasena_actual']):
+            raise serializers.ValidationError(
+                {'contrasena_actual': 'La contraseña actual no es correcta.'})
+        if datos['contrasena'] == datos['contrasena_actual']:
+            raise serializers.ValidationError(
+                {'contrasena': 'La contraseña nueva debe ser diferente de la actual.'})
+        validar_contrasena_del_usuario(datos['contrasena'], usuario)
+        return datos
 
 
 class MotivoSerializador(serializers.Serializer):

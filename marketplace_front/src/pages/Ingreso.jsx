@@ -24,7 +24,6 @@ export default function Ingreso() {
     setErrores(sinErrores)
     try {
       await ingresar(datos.correo_o_usuario, datos.contrasena)
-      navegar(estado.desde || '/perfil', { replace: true })
     } catch (error) {
       const detalle = extraerErrores(error)
       if (detalle.datos.requiere_verificacion) {
@@ -50,7 +49,7 @@ export default function Ingreso() {
         <Alerta>{errores.mensaje}</Alerta>
         {errores.datos.requiere_reactivacion && (
           <Alerta tipo="info">
-            <Link to="/reactivar" state={{ correo_o_usuario: datos.correo_o_usuario }}>
+            <Link to="/reactivar" state={{ correo: errores.datos.correo }}>
               Reactivar mi cuenta
             </Link>
           </Alerta>

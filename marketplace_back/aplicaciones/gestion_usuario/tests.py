@@ -229,7 +229,7 @@ class IngresoTests(BaseApi):
             with self.subTest(credencial=credencial):
                 respuesta = self.ingresar(credencial, clave)
                 self.assertEqual(respuesta.status_code, 401)
-                self.assertEqual(respuesta.data['mensaje'], 'Correo, usuario o contraseña incorrectos.')
+                self.assertEqual(respuesta.data['mensaje'], 'Correo o contraseña incorrectos')
         fallido = self.ultima_auditoria(Auditoria.Accion.ACCESO_FALLIDO)
         self.assertEqual(fallido.resultado, Auditoria.Resultado.RECHAZADO)
         self.assertEqual(self.cliente.get(reverse('perfil')).status_code, 401)
@@ -321,27 +321,94 @@ class EstadoCuentaTests(BaseApi):
         super().setUp()
         self.usuario = crear_usuario()
 
-    def reactivar(self, clave=CLAVE):
-        return self.cliente.post(reverse('reactivar'),
-                                 {'correo_o_usuario': 'huesped1', 'contrasena': clave}, format='json')
+    def solicitar(self, correo='huesped1@correo.com'):
+        return self.cliente.post(reverse('solicitar_reactivacion'), {'correo': correo}, format='json')
 
-    def test_desactivar_y_reactivar(self):
+    def reactivar(self, token):
+        return self.cliente.post(reverse('reactivar'),
+                                 {'correo': 'huesped1@correo.com', 'token': token}, format='json')
+
+    def token_del_correo(self):
+        return re.search(r'token=([\w-]+)', mail.outbox[-1].body).group(1)
+
+    def test_desactivar_y_reactivar_por_correo(self):
         self.cliente.force_login(self.usuario)
         self.assertEqual(self.cliente.patch(reverse('desactivar_cuenta')).status_code, 200)
         self.usuario.refresh_from_db()
         self.assertEqual(self.usuario.estado, Usuario.Estado.INACTIVO)
         self.assertEqual(self.cliente.get(reverse('perfil')).status_code, 401)
 
-        self.assertEqual(self.reactivar('Mala#Clave1').status_code, 401)
-        self.assertEqual(self.reactivar().status_code, 200)
+        self.assertEqual(self.solicitar().status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('/reactivar?correo=', mail.outbox[0].body)
+        token = self.token_del_correo()
+        self.assertEqual(self.reactivar('token-falso').status_code, 400)
+        self.assertEqual(self.reactivar(token).status_code, 200)
         self.usuario.refresh_from_db()
         self.assertEqual(self.usuario.estado, Usuario.Estado.ACTIVO)
-        self.assertEqual(Auditoria.objects.filter(accion=Auditoria.Accion.CAMBIO_ESTADO).count(), 2)
+        self.assertEqual(self.reactivar(token).status_code, 400)
+        self.assertEqual(Auditoria.objects.filter(accion=Auditoria.Accion.CAMBIO_ESTADO).count(), 3)
 
-    def test_reactivar_cuenta_activa_o_restringida(self):
-        self.assertEqual(self.reactivar().status_code, 409)
+    def test_solicitud_no_revela_ni_envia_si_no_esta_desactivada(self):
+        for correo in ['huesped1@correo.com', 'nadie@correo.com']:
+            with self.subTest(correo=correo):
+                self.assertEqual(self.solicitar(correo).status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_enlace_de_recuperacion_no_sirve_para_reactivar(self):
+        Usuario.objects.filter(pk=self.usuario.pk).update(estado=Usuario.Estado.INACTIVO)
+        self.usuario.refresh_from_db()
+        self.assertEqual(self.reactivar(default_token_generator.make_token(self.usuario)).status_code, 400)
+
+    def test_cuenta_restringida_no_se_reactiva(self):
+        Usuario.objects.filter(pk=self.usuario.pk).update(estado=Usuario.Estado.INACTIVO)
+        self.solicitar()
+        token = self.token_del_correo()
         Usuario.objects.filter(pk=self.usuario.pk).update(estado=Usuario.Estado.RESTRINGIDO)
-        self.assertEqual(self.reactivar().status_code, 403)
+        self.assertEqual(self.reactivar(token).status_code, 403)
+        self.usuario.refresh_from_db()
+        self.assertEqual(self.usuario.estado, Usuario.Estado.RESTRINGIDO)
+
+
+class CambioContrasenaTests(BaseApi):
+    url = reverse('cambiar_contrasena')
+
+    def setUp(self):
+        super().setUp()
+        self.usuario = crear_usuario()
+        self.cliente.force_login(self.usuario)
+
+    def cambiar(self, actual=CLAVE, nueva='Nueva#Clave2026', confirmar=None):
+        return self.cliente.post(self.url, {
+            'contrasena_actual': actual, 'contrasena': nueva,
+            'confirmar_contrasena': confirmar or nueva}, format='json')
+
+    def test_cambiar_contrasena_conserva_la_sesion(self):
+        self.assertEqual(self.cambiar().status_code, 200)
+        self.usuario.refresh_from_db()
+        self.assertTrue(self.usuario.check_password('Nueva#Clave2026'))
+        self.assertEqual(self.cliente.get(reverse('perfil')).status_code, 200)
+        registro = self.ultima_auditoria(Auditoria.Accion.ACTUALIZACION_PERFIL)
+        self.assertEqual(registro.detalle, 'Cambió su contraseña')
+
+    def test_cambios_invalidos_no_se_guardan(self):
+        casos = [
+            ({'actual': 'Mala#Clave2026'}, 'contrasena_actual'),
+            ({'nueva': CLAVE}, 'contrasena'),
+            ({'nueva': '12345678'}, 'contrasena'),
+            ({'confirmar': 'Otra#Clave2026'}, 'confirmar_contrasena'),
+            ({'actual': ''}, 'contrasena_actual'),
+        ]
+        for cambios, campo in casos:
+            with self.subTest(cambios=cambios):
+                respuesta = self.cambiar(**cambios)
+                self.assertEqual(respuesta.status_code, 400)
+                self.assertIn(campo, respuesta.data)
+        self.usuario.refresh_from_db()
+        self.assertTrue(self.usuario.check_password(CLAVE))
+
+    def test_requiere_sesion(self):
+        self.assertEqual(APIClient().post(self.url, {}, format='json').status_code, 401)
 
 
 class AdministracionTests(BaseApi):

@@ -5,7 +5,7 @@ import Boton from '../components/Boton'
 import Alerta from '../components/Alerta'
 import useFormulario from '../hooks/useFormulario'
 import { useAuth } from '../context/contextoAuth'
-import { actualizarPerfil, desactivarCuenta, obtenerCsrf } from '../api/usuarios'
+import { actualizarPerfil, cambiarContrasena, desactivarCuenta, obtenerCsrf } from '../api/usuarios'
 import { extraerErrores, sinErrores } from '../utils/errores'
 import { ETIQUETA_ESTADO, fechaLegible } from '../utils/estados'
 
@@ -22,6 +22,11 @@ export default function Perfil() {
   const [aviso, setAviso] = useState('')
   const [cargando, setCargando] = useState(false)
   const [confirmando, setConfirmando] = useState(false)
+  const vacia = { contrasena_actual: '', contrasena: '', confirmar_contrasena: '' }
+  const [clave, setClave] = useState(vacia)
+  const [erroresClave, setErroresClave] = useState(sinErrores)
+  const [avisoClave, setAvisoClave] = useState('')
+  const [cambiandoClave, setCambiandoClave] = useState(false)
 
   async function guardar(evento) {
     evento.preventDefault()
@@ -37,6 +42,26 @@ export default function Perfil() {
     } finally {
       setCargando(false)
     }
+  }
+
+  async function guardarClave(evento) {
+    evento.preventDefault()
+    setCambiandoClave(true)
+    setErroresClave(sinErrores)
+    setAvisoClave('')
+    try {
+      const { data } = await cambiarContrasena(clave)
+      setAvisoClave(data.mensaje)
+      setClave(vacia)
+    } catch (error) {
+      setErroresClave(extraerErrores(error))
+    } finally {
+      setCambiandoClave(false)
+    }
+  }
+
+  function cambiarClave(evento) {
+    setClave({ ...clave, [evento.target.name]: evento.target.value })
   }
 
   async function desactivar() {
@@ -90,6 +115,24 @@ export default function Perfil() {
             ayuda="Solo números, entre 7 y 15 dígitos." />
 
           <Boton type="submit" cargando={cargando}>Guardar cambios</Boton>
+        </form>
+
+        <h2>Cambiar contraseña</h2>
+        <form className="formulario-angosto" onSubmit={guardarClave} noValidate>
+          <Alerta tipo="exito">{avisoClave}</Alerta>
+          <Alerta>{erroresClave.mensaje}</Alerta>
+
+          <Campo etiqueta="Contraseña actual" nombre="contrasena_actual" tipo="password"
+            valor={clave.contrasena_actual} onCambio={cambiarClave}
+            error={erroresClave.campos.contrasena_actual} autoComplete="current-password" />
+          <Campo etiqueta="Contraseña nueva" nombre="contrasena" tipo="password" valor={clave.contrasena}
+            onCambio={cambiarClave} error={erroresClave.campos.contrasena} autoComplete="new-password"
+            ayuda="8 a 64 caracteres con mayúscula, minúscula, número y símbolo." />
+          <Campo etiqueta="Confirmar contraseña nueva" nombre="confirmar_contrasena" tipo="password"
+            valor={clave.confirmar_contrasena} onCambio={cambiarClave}
+            error={erroresClave.campos.confirmar_contrasena} autoComplete="new-password" />
+
+          <Boton type="submit" cargando={cambiandoClave}>Cambiar contraseña</Boton>
         </form>
 
         <div className="zona-peligro">

@@ -658,6 +658,10 @@ a:hover {
     max-width: 520px;
 }
 
+.formulario-angosto + h2 {
+    margin-top: 48px;
+}
+
 .zona-peligro {
     border: 1px solid rgba(255, 107, 122, 0.3);
     border-radius: 12px;
